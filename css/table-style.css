@@ -1,0 +1,32 @@
+.er-style {
+    width: 250px;
+    text-align: left;
+    border: 2px solid black;
+}
+
+.er-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 5px;
+    margin: 20px 0;
+}
+
+.pk {
+    background-color: lightblue;
+}
+
+.width100 {
+    width: 100%;
+}
+
+.table-width-padding400 {
+    padding-right:400px;
+}
+
+.table-width-padding200 {
+    padding-right:200px;
+}
+
+.table-width-padding100 {
+    padding-right:100px;
+}
