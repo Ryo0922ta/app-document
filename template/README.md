@@ -4,7 +4,7 @@
 
 ## ディレクトリ構成
 
-```
+```markdown
 template/
 ├── css/
 │   └── table-style-template.css    # テーブル表示用CSSテンプレート
