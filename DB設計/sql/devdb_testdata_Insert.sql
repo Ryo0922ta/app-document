@@ -1,10 +1,10 @@
 -- =============================
 -- 1. ユーザーテーブル
 -- =============================
-INSERT INTO users (user_name, password) VALUES
-('佐藤太郎', 'taro123'),
-('鈴木花子', 'hanako456'),
-('田中健一', 'kenichi789');
+INSERT INTO users (user_name, email,role) VALUES
+('佐藤太郎', 'taro123@example.com','user'),
+('鈴木花子', 'hanako456@example.com' ,'user'),
+('田中健一', 'kenichi789@example.com' ,'user');
 
 -- =============================
 -- 2. タスクステイトテーブル（固定マスタ）
