@@ -5,7 +5,7 @@ TARGET_REPOS=("backend" "frontend" "command")
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P) || exit 1
 
-declare -a original_branches results failure_reasons restore_results processed
+declare -a original_branches results failure_reasons restore_results processed failure_branches
 
 for i in "${!TARGET_REPOS[@]}"; do
   original_branches[i]=""
@@ -13,6 +13,7 @@ for i in "${!TARGET_REPOS[@]}"; do
   failure_reasons[i]=""
   restore_results[i]="復帰対象なし"
   processed[i]=0
+  failure_branches[i]=""
 done
 
 log_info() {
@@ -25,7 +26,7 @@ log_error() {
 
 current_branch() {
   local branch
-  branch=$(git -C "$1" symbolic-ref --quiet --short HEAD 2>/dev/null) && [[ -n "$branch" ]] && {
+  [[ -d "$1/.git" ]] && branch=$(git -C "$1" symbolic-ref --quiet --short HEAD 2>/dev/null) && [[ -n "$branch" ]] && {
     printf '%s' "$branch"
     return
   }
@@ -35,6 +36,7 @@ current_branch() {
 add_failure() {
   local i=$1 message=$2
   results[i]="失敗"
+  failure_branches[i]="$(current_branch "$SCRIPT_DIR/${TARGET_REPOS[i]}")"
   if [[ -n "${failure_reasons[i]}" ]]; then
     failure_reasons[i]+="／$message"
   else
@@ -69,7 +71,7 @@ restore_branch() {
 }
 
 print_summary() {
-  local i success=0 failure=0 pending=0 repo
+  local i success=0 failure=0 pending=0
 
   for i in "${!TARGET_REPOS[@]}"; do
     case "${results[i]}" in
@@ -88,10 +90,9 @@ print_summary() {
   printf '\n失敗（%d件）\n' "$failure"
   for i in "${!TARGET_REPOS[@]}"; do
     [[ "${results[i]}" == 失敗 ]] || continue
-    repo="$SCRIPT_DIR/${TARGET_REPOS[i]}"
     printf '  %s  %s／%s／終了時のブランチ: %s\n' \
       "${TARGET_REPOS[i]}" "${failure_reasons[i]}" \
-      "${restore_results[i]}" "$(current_branch "$repo")"
+      "${restore_results[i]}" "${failure_branches[i]}"
   done
 
   if ((pending > 0)); then
@@ -128,6 +129,9 @@ handle_signal() {
     if [[ "${results[i]}" == 処理中 ]]; then
       add_failure "$i" '割り込みにより更新未完了'
     fi
+    if [[ "${results[i]}" == 失敗 ]]; then
+      failure_branches[i]="$(current_branch "$repo")"
+    fi
   done
 
   print_summary
@@ -154,18 +158,16 @@ for i in "${!TARGET_REPOS[@]}"; do
     continue
   fi
 
+  if [[ ! -d "$repo/.git" ]]; then
+    add_failure "$i" '対象ディレクトリに.gitディレクトリがありません'
+    continue
+  fi
+
   top=$(git -C "$repo" rev-parse --show-toplevel 2>/dev/null)
   if [[ -z "$top" || "$(cd "$top" 2>/dev/null && pwd -P)" != "$(cd "$repo" && pwd -P)" ]]; then
     add_failure "$i" '対象ディレクトリはGitリポジトリのルートではありません'
     continue
   fi
-
-  original=$(git -C "$repo" symbolic-ref --quiet --short HEAD 2>/dev/null)
-  if [[ -z "$original" ]]; then
-    add_failure "$i" '現在のブランチを記録できません（detached HEADなど）'
-    continue
-  fi
-  original_branches[i]="$original"
 
   if ! git -C "$repo" show-ref --verify --quiet refs/heads/main; then
     add_failure "$i" 'ローカルのmainブランチがありません'
@@ -176,16 +178,32 @@ for i in "${!TARGET_REPOS[@]}"; do
     continue
   fi
 
+  if ! tracked_changes=$(git -C "$repo" status --porcelain=v1 --untracked-files=no 2>/dev/null); then
+    add_failure "$i" '作業ツリーの状態を確認できません'
+    continue
+  fi
+  if [[ -n "$tracked_changes" ]]; then
+    add_failure "$i" 'ステージ済みまたは未ステージの変更があります'
+    continue
+  fi
+
+  original=$(git -C "$repo" symbolic-ref --quiet --short HEAD 2>/dev/null)
+  if [[ -z "$original" ]]; then
+    add_failure "$i" '現在のブランチを記録できません（detached HEADなど）'
+    continue
+  fi
+  original_branches[i]="$original"
+
   if [[ "$original" == main ]]; then
     restore_results[i]="実行開始時からmain"
   else
     log_info "${TARGET_REPOS[i]}" 'mainへ切り替え'
     if ! git -C "$repo" checkout main; then
       add_failure "$i" 'mainへの切り替え失敗'
-      if [[ "$(current_branch "$repo")" != "$original" ]]; then
-        restore_branch "$i" || add_failure "$i" '元のブランチへの復帰失敗'
-      else
+      if [[ "$(current_branch "$repo")" == "$original" ]]; then
         restore_results[i]="元のブランチを維持"
+      else
+        restore_results[i]="復帰せず"
       fi
       continue
     fi
@@ -196,17 +214,15 @@ for i in "${!TARGET_REPOS[@]}"; do
   if git -C "$repo" pull origin main; then
     results[i]="成功"
     log_info "${TARGET_REPOS[i]}" 'pull成功'
-  else
-    add_failure "$i" 'pull失敗'
     if [[ "$original" != main ]]; then
       restore_branch "$i" || add_failure "$i" '元のブランチへの復帰失敗'
     fi
+  else
+    add_failure "$i" 'pull失敗'
+    if [[ "$original" != main ]]; then
+      restore_results[i]="復帰せず"
+    fi
   fi
-done
-
-for i in "${!TARGET_REPOS[@]}"; do
-  [[ "${results[i]}" == 成功 && "${original_branches[i]}" != main ]] || continue
-  restore_branch "$i" || add_failure "$i" '元のブランチへの復帰失敗'
 done
 
 print_summary
