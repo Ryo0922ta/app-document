@@ -13,7 +13,7 @@
    TEST_ROOT=$(mktemp -d)
    cp ./update-main.sh "$TEST_ROOT/update-main.sh"
 
-   for name in backend frontend command; do
+   for name in backend frontend common; do
      git init -q --bare "$TEST_ROOT/$name-origin.git"
      git init -q "$TEST_ROOT/$name"
      git -C "$TEST_ROOT/$name" checkout -q -b main
@@ -43,14 +43,14 @@
 | --- | --- | --- | --- |
 | T01 | ①③④⑥ | 3対象で `git -C "$TEST_ROOT/名前" checkout -q -b feature/test` を行ってから実行 | 指定順に3対象の `pull` が成功し、各対象が**次の対象の処理前に** `feature/test` に戻る。「成功（3件）」、終了コード `0`。 |
 | T02 | ③④ | 追加準備なし。3対象とも `main` のまま実行 | ブランチ切り替えをせず3対象の `pull` が成功する。「実行開始時からmain」が表示され、終了コード `0`。 |
-| T03 | ① | 一時コピーの `TARGET_REPOS=(...)` を `TARGET_REPOS=()` に変更して実行 | 「対象リポジトリ一覧が空です」と表示して終了コード `1`。`pull` は行わない。 |
-| T04 | ② | `mv "$TEST_ROOT/frontend" "$TEST_ROOT/frontend-hidden"` の後に実行 | `frontend` はディレクトリ不在として失敗する。`backend` と `command` は処理される。「成功（2件）」「失敗（1件）」、終了コード `1`。 |
+| T03 | ① | 一時コピーの `TARGET_REPO_DIR_NAMES=(...)` を `TARGET_REPO_DIR_NAMES=()` に変更して実行 | 「対象リポジトリ一覧が空です」と表示して終了コード `1`。`pull` は行わない。 |
+| T04 | ② | `mv "$TEST_ROOT/frontend" "$TEST_ROOT/frontend-hidden"` の後に実行 | `frontend` はディレクトリ不在として失敗する。`backend` と `common` は処理される。「成功（2件）」「失敗（1件）」、終了コード `1`。 |
 | T05 | ② | `git -C "$TEST_ROOT/frontend" remote remove origin` の後に実行 | `frontend` は `origin` 不在として失敗し、ほかの2対象は更新される。終了コード `1`。 |
 | T06 | ② | `frontend` で `git checkout -q -b feature/test`、次に `git branch -D main` を実行してからスクリプトを実行 | `frontend` はローカル `main` 不在として失敗する。`feature/test` は維持され、ほかの2対象は更新される。終了コード `1`。 |
-| T07 | ⑤ | `frontend` で `git checkout -q -b feature/test`。空の bare リポジトリを `git init -q --bare "$TEST_ROOT/empty-origin.git"` で作り、`git -C "$TEST_ROOT/frontend" remote set-url origin "$TEST_ROOT/empty-origin.git"` を実行 | `frontend` の `pull` は失敗し、復帰せず `main` のまま次の `command` を処理する。「pull失敗／復帰せず／終了時のブランチ: main」、終了コード `1`。Git の詳細エラーはターミナルで確認する。 |
-| T12 | ② | `frontend` を `.git` ディレクトリのない通常ディレクトリに差し替えて実行 | `frontend` は「.gitディレクトリがありません」で失敗し、`command` の処理は続く。終了コード `1`。 |
+| T07 | ⑤ | `frontend` で `git checkout -q -b feature/test`。空の bare リポジトリを `git init -q --bare "$TEST_ROOT/empty-origin.git"` で作り、`git -C "$TEST_ROOT/frontend" remote set-url origin "$TEST_ROOT/empty-origin.git"` を実行 | `frontend` の `pull` は失敗し、復帰せず `main` のまま次の `common` を処理する。「pull失敗／復帰せず／終了時のブランチ: main」、終了コード `1`。Git の詳細エラーはターミナルで確認する。 |
+| T12 | ② | `frontend` を `.git` ディレクトリのない通常ディレクトリに差し替えて実行 | `frontend` は「.gitディレクトリがありません」で失敗し、`common` の処理は続く。終了コード `1`。 |
 
-T01 の「名前」には `backend`、`frontend`、`command` を順に入れる。T06 と T07 の追加準備は、共通準備直後の状態から行う。
+T01 の「名前」には `backend`、`frontend`、`common` を順に入れる。T06 と T07 の追加準備は、共通準備直後の状態から行う。
 
 `.git` がファイルとなる linked worktree も T12 と同じ判定で対象外になる。
 
@@ -71,7 +71,7 @@ T09 の準備例：`feature/test` で `printf 'feature\n' > file.txt`、`git add
 | ID | 対応手順 | 追加準備と実行 | 期待結果 |
 | --- | --- | --- | --- |
 | T10 | ⑥ | `backend` を `feature/test` で開始する。テスト用の `git` ラッパーを `PATH` の先頭に置き、`backend` の **復帰時だけ** `checkout feature/test` を終了コード `1` にし、それ以外は実際の `git` に委譲して実行 | `backend` の `pull` は成功しても、次の `frontend` を処理する前に復帰を試み、最終結果は「失敗」。結果一覧に「元のブランチへの復帰失敗」と終了時のブランチ `main` が表示され、終了コード `1`。強制切り替えは行われない。 |
-| T11 | 6.3 割り込み | `backend` と `frontend` を `feature/test` で開始する。テスト用 `git` ラッパーで `frontend` の `pull` を一時停止し、その間にスクリプトへ `TERM` を送る | 新たに `command` の更新を始めない。必要なブランチ復帰を試み、「未処理（1件）」と `command` を表示する。復帰できた対象は元のブランチにいる。`TERM` による終了コードは `143`。 |
+| T11 | 6.3 割り込み | `backend` と `frontend` を `feature/test` で開始する。テスト用 `git` ラッパーで `frontend` の `pull` を一時停止し、その間にスクリプトへ `TERM` を送る | 新たに `common` の更新を始めない。必要なブランチ復帰を試み、「未処理（1件）」と `common` を表示する。復帰できた対象は元のブランチにいる。`TERM` による終了コードは `143`。 |
 
 T10・T11 は失敗や中断の時点を制御するためのケース。ラッパーは一時ディレクトリ内に置き、実際の `git` コマンドや利用中のリポジトリを変更しない。T11 の割り込みで復帰を Git が拒否した場合は、失敗と終了時のブランチが表示されることも確認する。
 
