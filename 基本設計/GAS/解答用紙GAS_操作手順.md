@@ -1,3 +1,10 @@
+---
+type: Playbook
+title: 解答用紙GAS 操作手順
+description: スプレッドシート用Apps Scriptの準備と解答用紙の作成・編集手順。
+tags: [gas, spreadsheet, user-guide]
+---
+
 # 解答用紙GAS 操作手順
 
 > この手順は現在のローカル実装に対応します。「配置データ」の表示と新規出力時の基本パーツ設定を利用するには、最新コードの反映が必要です。

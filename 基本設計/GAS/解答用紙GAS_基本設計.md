@@ -1,3 +1,10 @@
+---
+type: Design Document
+title: 解答用紙GAS 基本設計
+description: スプレッドシート用Apps Scriptによる解答用紙作成機能の基本設計。
+tags: [gas, spreadsheet, basic-design]
+---
+
 # 解答用紙GAS 基本設計
 
 | 項目 | 内容 |

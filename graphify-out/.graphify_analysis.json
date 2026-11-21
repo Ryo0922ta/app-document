@@ -1,0 +1,174 @@
+{
+  "communities": {
+    "0": [
+      "基本設計_gas_解答用紙gas_基本設計_パーツ編集パネル",
+      "基本設計_gas_解答用紙gas_基本設計_出力シート",
+      "基本設計_gas_解答用紙gas_基本設計_解答用紙gas_基本設計",
+      "基本設計_gas_解答用紙gas_基本設計_配置と削除時の照合",
+      "基本設計_gas_解答用紙gas_基本設計_配置データ"
+    ],
+    "1": [
+      "基本設計_next_js_解答用紙エディタ_基本設計_fabricキャンバス",
+      "基本設計_next_js_解答用紙エディタ_基本設計_pdf出力",
+      "基本設計_next_js_解答用紙エディタ_基本設計_word文書出力",
+      "基本設計_next_js_解答用紙エディタ_基本設計_レイアウトの永続化制約",
+      "基本設計_next_js_解答用紙エディタ_基本設計_解答用紙エディタ_基本設計"
+    ],
+    "2": [
+      "index_解答用紙作成アプリのドキュメント",
+      "基本設計_gas_解答用紙gas_操作手順_別シートで仕上げて印刷",
+      "基本設計_gas_解答用紙gas_操作手順_解答用紙gas_操作手順"
+    ],
+    "3": [
+      "基本設計_gas_解答用紙gas_基本設計_問題文解析と配置",
+      "基本設計_gas_解答用紙gas_操作手順_問題文から大問を追加",
+      "基本設計_next_js_解答用紙エディタ_基本設計_問題文からの自動取込"
+    ],
+    "4": [
+      "readme_sorce_tree_test"
+    ]
+  },
+  "cohesion": {
+    "0": 0.4,
+    "1": 0.4,
+    "2": 0.6666666666666666,
+    "3": 0.6666666666666666,
+    "4": 1.0
+  },
+  "gods": [
+    {
+      "id": "基本設計_gas_解答用紙gas_基本設計_解答用紙gas_基本設計",
+      "label": "解答用紙GAS 基本設計",
+      "degree": 7
+    },
+    {
+      "id": "基本設計_next_js_解答用紙エディタ_基本設計_解答用紙エディタ_基本設計",
+      "label": "解答用紙エディタ 基本設計",
+      "degree": 6
+    },
+    {
+      "id": "基本設計_gas_解答用紙gas_操作手順_解答用紙gas_操作手順",
+      "label": "解答用紙GAS 操作手順",
+      "degree": 4
+    },
+    {
+      "id": "index_解答用紙作成アプリのドキュメント",
+      "label": "解答用紙作成アプリのドキュメント",
+      "degree": 3
+    },
+    {
+      "id": "基本設計_gas_解答用紙gas_基本設計_問題文解析と配置",
+      "label": "問題文解析と配置",
+      "degree": 3
+    },
+    {
+      "id": "基本設計_gas_解答用紙gas_操作手順_問題文から大問を追加",
+      "label": "問題文から大問を追加",
+      "degree": 2
+    },
+    {
+      "id": "基本設計_next_js_解答用紙エディタ_基本設計_問題文からの自動取込",
+      "label": "問題文からの自動取込",
+      "degree": 2
+    },
+    {
+      "id": "基本設計_gas_解答用紙gas_基本設計_パーツ編集パネル",
+      "label": "パーツ編集パネル",
+      "degree": 1
+    },
+    {
+      "id": "基本設計_gas_解答用紙gas_基本設計_出力シート",
+      "label": "出力シート",
+      "degree": 1
+    },
+    {
+      "id": "基本設計_gas_解答用紙gas_基本設計_配置と削除時の照合",
+      "label": "配置と削除時の照合",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "解答用紙作成アプリのドキュメント",
+      "target": "解答用紙GAS 基本設計",
+      "source_files": [
+        "index.md",
+        "基本設計/GAS/解答用紙GAS_基本設計.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "解答用紙作成アプリのドキュメント",
+      "target": "解答用紙エディタ 基本設計",
+      "source_files": [
+        "index.md",
+        "基本設計/next.js/解答用紙エディタ_基本設計.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "解答用紙作成アプリのドキュメント",
+      "target": "解答用紙GAS 操作手順",
+      "source_files": [
+        "index.md",
+        "基本設計/GAS/解答用紙GAS_操作手順.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "問題文から大問を追加",
+      "target": "問題文解析と配置",
+      "source_files": [
+        "基本設計/GAS/解答用紙GAS_操作手順.md",
+        "基本設計/GAS/解答用紙GAS_基本設計.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "問題文からの自動取込",
+      "target": "問題文解析と配置",
+      "source_files": [
+        "基本設計/next.js/解答用紙エディタ_基本設計.md",
+        "基本設計/GAS/解答用紙GAS_基本設計.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; semantically similar concepts with no structural link"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `解答用紙GAS 基本設計` connect `Community 0` to `Community 2`, `Community 3`?",
+      "why": "High betweenness centrality (0.439) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 2 inferred relationships involving `問題文解析と配置` (e.g. with `問題文から大問を追加` and `問題文からの自動取込`) actually correct?",
+      "why": "`問題文解析と配置` has 2 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `パーツ編集パネル`, `出力シート`, `配置と削除時の照合` to the rest of the system?",
+      "why": "10 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `解答用紙エディタ 基本設計` connect `Community 1` to `Community 2`, `Community 3`?",
+      "why": "High betweenness centrality (0.431) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `解答用紙作成アプリのドキュメント` connect `Community 2` to `Community 0`, `Community 1`?",
+      "why": "High betweenness centrality (0.318) - this node is a cross-community bridge."
+    }
+  ]
+}
